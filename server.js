@@ -6,12 +6,34 @@ const { DatabaseSync } = require('node:sqlite');
 const PORT = +process.env.PORT || 3000;
 const ADMIN_KEY = (process.env.ADMIN_KEY || '').trim();
 const TRUST_PROXY = process.env.TRUST_PROXY === '1'; // nginx / Cloudflare などの後ろで動かすときだけ 1 にする
-let FILE_CFG = {}; try { FILE_CFG = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8')); } catch (e) { console.log('config.json を読めませんでした(なくても動きます)'); }
-const CFG = { reportUrl: process.env.REPORT_FORM_URL || FILE_CFG.REPORT_FORM_URL || '', contactUrl: process.env.CONTACT_FORM_URL || FILE_CFG.CONTACT_FORM_URL || '' };
-const DATA = process.env.DATA_DIR || __dirname, UP = path.join(DATA, 'uploads'), PUB = path.join(__dirname, 'public');
-fs.mkdirSync(UP, { recursive: true });
-if (!fs.existsSync(path.join(PUB, 'index.html'))) console.log('【注意】 public フォルダに index.html が見つかりません。画面用のファイルは public フォルダに入れてください。');
 
+let FILE_CFG = {}; 
+try { 
+  FILE_CFG = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8')); 
+} catch (e) { 
+  console.log('config.json を読めませんでした(なくても動きます)'); 
+}
+
+const CFG = { 
+  reportUrl: process.env.REPORT_FORM_URL || FILE_CFG.REPORT_FORM_URL || '', 
+  contactUrl: process.env.CONTACT_FORM_URL || FILE_CFG.CONTACT_FORM_URL || '' 
+};
+
+// Vercel(書き込み禁止環境)の場合は /tmp に保存先を変更し、エラーで落ちないように処理
+const isVercel = process.env.VERCEL === '1';
+const DATA = process.env.DATA_DIR || (isVercel ? '/tmp' : __dirname);
+const UP = path.join(DATA, 'uploads');
+const PUB = path.join(__dirname, 'public');
+
+try {
+  fs.mkdirSync(UP, { recursive: true });
+} catch (e) {
+  console.log('フォルダの作成をスキップしました:', e.message);
+}
+
+if (!fs.existsSync(path.join(PUB, 'index.html')) && !fs.existsSync(path.join(__dirname, 'index.html'))) {
+  console.log('【注意】 index.html が見つかりません。');
+}
 // ---------- データベース ----------
 const db = new DatabaseSync(path.join(DATA, 'tamari.db'));
 db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
