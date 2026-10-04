@@ -23,7 +23,7 @@ const CFG = {
 const isVercel = process.env.VERCEL === '1';
 const DATA = process.env.DATA_DIR || (isVercel ? '/tmp' : __dirname);
 const UP = path.join(DATA, 'uploads');
-const PUB = path.join(__dirname, 'public');
+const PUB = __dirname;
 
 try {
   fs.mkdirSync(UP, { recursive: true });
