@@ -523,20 +523,26 @@ function renderProfile(u, acts, ctx = {}) { // 保存済みのデータも、編
         ctx.talk ? el('button', { class: 'txt', style: 'margin-left:8px', onclick: () => ctx.talk(r.username) }, 'この人と話す') : null))) : null))) : null,
     links: () => { const ls = u.links.map(l => [l, okLink(l)]).filter(x => x[1]); return ls.length ? sec('links', ls.map(([l, x]) => el('a', { class: 'lk', href: x.href, target: '_blank', rel: 'noopener noreferrer nofollow ugc' }, el('span', {}, l.title || x.hostname), el('span', { class: 'sm2' }, x.hostname)))) : null; },
     // 修正1：相互繋がり部分でURLではなく「ユーザー名(@〜)」の綺麗なリスト形式にする
-  follow: () => {
-  if (!u.connections || (!u.connections.length && !u.self)) return null;
-  const items = u.connections.length ? u.connections.map(c => 
-    el('a', { class: 'lk', href: '#/u/' + c.username, style: 'display:flex;align-items:center;justify-content:space-between;text-decoration:none' }, 
-      el('span', { style: 'font-weight:600' }, c.display), 
-      el('span', { class: 'sm2' }, '@' + c.username)
-    )
-  ) : [el('p', { class: 'sm2' }, 'まだつながりがありません。話した相手のページで「つながる」で追加できます。')];
-
-  if (u.self) {
-    items.push(el('a', { href: '#/connections', class: 'sm2' }, 'つながりの一覧 →'));
-  }
-  return sec('follow', ...items);
-},
+follow: () => {
+      if (!u.connections || (!u.connections.length && !u.self)) return null;
+      const content = [];
+      if (u.connections.length) {
+        u.connections.forEach(c => {
+          content.push(
+            el('a', { class: 'lk', href: '#/u/' + c.username, style: 'display:flex;align-items:center;justify-content:space-between;text-decoration:none' },
+              el('span', { style: 'font-weight:600' }, c.display),
+              el('span', { class: 'sm2' }, '@' + c.username)
+            )
+          );
+        });
+      } else {
+        content.push(el('p', { class: 'sm2' }, 'まだつながりがありません。話した相手のページで「つながる」で追加できます。'));
+      }
+      if (u.self) {
+        content.push(el('a', { href: '#/connections', class: 'sm2' }, 'つながりの一覧 →'));
+      }
+      return sec('follow', content);
+    }
   };
   const bg = el('div', { class: 'mebg' }); if (u.bg) bg.style.backgroundImage = 'url("' + u.bg + '")';
   return el('div', { class: 'me', 'data-ac': u.accent || 'gray' }, bg, el('div', { class: 'mescrim' }),
