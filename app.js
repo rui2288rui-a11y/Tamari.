@@ -489,7 +489,7 @@ function postCard(p, self, reload){
   if(p.video) content.append(el('video',{class:'post-media',src:p.video,controls:'',playsinline:'',preload:'metadata'}));
   content.addEventListener('click',e=>{ if(e.target.closest('video,a,button')) return; postDetailDialog(p,reload); });
   const heartStack = el('div',{class:'post-heart-stack','aria-label':String(p.likes||0)+'件のいいね'});
-  const renderHearts = n => { heartStack.replaceChildren(); const total=Math.max(0,Number(n)||0); const shown=Math.min(total,24); for(let i=0;ishown) heartStack.append(el('span',{class:'post-heart-more'},'+'+(total-shown))); };
+  const renderHearts = n => { heartStack.replaceChildren(); const total=Math.max(0,Number(n)||0); const shown=Math.min(total,24); for(let i=0;i<shown;i++) heartStack.append(el('span',{class:'post-heart-small'},'♡')); if(total>shown) heartStack.append(el('span',{class:'post-heart-more'},'+'+(total-shown))); };
   renderHearts(p.likes||0);
   const reacts=el('button',{class:'post-reaction '+(p.liked?'active':''),title:p.liked?'反応を取り消す':'♡ 反応する','aria-label':p.liked?'反応を取り消す':'♡ 反応する',onclick:safe(async()=>{
     const wasLiked=p.liked; const r=await api('/api/posts/'+p.id+'/reaction','POST'); p.liked=r.liked;p.likes=r.likes; reacts.classList.toggle('active',p.liked); reacts.querySelector('.heart-icon').textContent=p.liked?'♥':'♡'; count.textContent=String(r.likes)+' 反応'; renderHearts(r.likes); if(p.liked&&!wasLiked) launchHeartBurst(card);
@@ -512,29 +512,6 @@ async function renderPosts(username,self){
 function renderProfile(u, acts, ctx = {}) { // 保存済みのデータも、編集中のプレビューも、同じ関数で描画します
   const sec = (id, ...k) => el('section', { class: 'blk' }, el('h3', { class: 'lb' }, LABEL[id]), k);
   const txt = (id, v, cls) => v ? sec(id, el('p', { class: cls || 'tx' }, id === 'likes' || id === 'hobbies' || id === 'interests' ? slash(v) : v)) : null;
-  
-  // 【修正①】相互繋がり一覧のURL表示をユーザー名・表示名に置き換える処理（関数として安全に定義）
-  const getFollowNode = () => {
-    if (!u.connections || (!u.connections.length && !u.self)) return null;
-    const listNodes = [];
-    if (u.connections.length) {
-      u.connections.forEach(c => {
-        listNodes.push(
-          el('a', { class: 'lk', href: '#/u/' + c.username, style: 'display:flex;align-items:center;justify-content:space-between;text-decoration:none' },
-            el('span', { style: 'font-weight:600' }, c.display),
-            el('span', { class: 'sm2' }, '@' + c.username)
-          )
-        );
-      });
-    } else {
-      listNodes.push(el('p', { class: 'sm2' }, 'まだつながりがありません。話した相手のページで「つながる」で追加できます。'));
-    }
-    if (u.self) {
-      listNodes.push(el('a', { href: '#/connections', class: 'sm2', style: 'display:block;margin-top:8px' }, 'つながりの一覧 →'));
-    }
-    return sec('follow', listNodes);
-  };
-
   const parts = {
     status: () => u.statusLine ? el('p', { class: 'now' }, u.statusLine) : null, bio: () => txt('bio', u.bio), likes: () => txt('likes', u.likes, 'tx sl'), hobbies: () => txt('hobbies', u.hobbies, 'tx sl'), interests: () => txt('interests', u.interests, 'tx sl'), quote: () => txt('quote', u.quote, 'tx sl'),
     shot: () => u.shot ? sec('shot', el('figure', { class: 'shot' }, el('img', { src: u.shot.image, alt: '今日の一枚' }), u.shot.caption ? el('figcaption', {}, u.shot.caption) : null)) : null,
@@ -544,7 +521,7 @@ function renderProfile(u, acts, ctx = {}) { // 保存済みのデータも、編
       u.self && d.replies && d.replies.length ? el('div', { class: 'rps' }, d.replies.map(r => el('div', { class: 'rp' }, el('a', { href: '#/u/' + r.username, class: 'nm' }, r.display), ' ', r.stamp ? el('span', { class: 'tag' }, r.stamp) : null, r.body ? el('span', {}, r.body) : null,
         ctx.talk ? el('button', { class: 'txt', style: 'margin-left:8px', onclick: () => ctx.talk(r.username) }, 'この人と話す') : null))) : null))) : null,
     links: () => { const ls = u.links.map(l => [l, okLink(l)]).filter(x => x[1]); return ls.length ? sec('links', ls.map(([l, x]) => el('a', { class: 'lk', href: x.href, target: '_blank', rel: 'noopener noreferrer nofollow ugc' }, el('span', {}, l.title || x.hostname), el('span', { class: 'sm2' }, x.hostname)))) : null; },
-    follow: getFollowNode
+    follow: () => !u.connections || (!u.connections.length && !u.self) ? null : sec('follow', u.connections.length ? u.connections.map(c => el('a', { class: 'lk', href: '#/u/' + c.username }, el('span', {}, c.display), el('span', { class: 'sm2' }, '@' + c.username))) : el('p', { class: 'sm2' }, 'まだつながりがありません。話した相手を「つながる」で追加できます。'), u.self ? el('a', { href: '#/connections', class: 'sm2' }, 'つながりの一覧 →') : null)
   };
   const bg = el('div', { class: 'mebg' }); if (u.bg) bg.style.backgroundImage = 'url("' + u.bg + '")';
   return el('div', { class: 'me', 'data-ac': u.accent || 'gray' }, bg, el('div', { class: 'mescrim' }),
@@ -641,40 +618,10 @@ async function settings() {
   const inbox = el('select', { 'aria-label': '話しかけの受け付け' }, [['all', 'だれでも話しかけられる'], ['mutual', 'つながりのある人だけ'], ['off', '話しかけを受け付けない']].map(([v, l]) => el('option', { value: v }, l)));
   inbox.value = ME.inbox || 'all'; inbox.onchange = safe(async () => { await api('/api/settings', 'PUT', { inbox: inbox.value }); ME.inbox = inbox.value; toast('保存しました'); });
   const cur = el('input', { type: 'password', autocomplete: 'current-password', placeholder: '現在のパスワード' }), nw = el('input', { type: 'password', autocomplete: 'new-password', placeholder: '新しいパスワード(8文字以上)' }), dp = el('input', { type: 'password', autocomplete: 'current-password', placeholder: 'パスワードを入力して退会' });
-  
-  // 【修正②】ブロックリストをタップして展開できるアコーディオン（折りたたみ）式に修正
-  const blockContainer = el('div');
-  if (!bl.length) {
-    blockContainer.append(el('p', { class: 'sm2' }, 'ブロック中のユーザーはいません'));
-  } else {
-    let isOpen = false;
-    const toggleBtn = el('button', { class: 'sub', style: 'width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;cursor:pointer' },
-      el('span', {}, 'ブロック中のユーザー (' + bl.length + '人)'),
-      el('span', { class: 'block-arrow' }, '▼')
-    );
-    const listDiv = el('div', { style: 'display:none;margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--bg)' });
-    
-    bl.forEach(x => {
-      listDiv.append(el('div', { class: 'row', style: 'padding:8px 0;border-bottom:1px solid var(--line);align-items:center;cursor:default' },
-        avatar(x),
-        el('div', { class: 'g', style: 'flex:1' }, el('div', { class: 'nm' }, x.display), el('div', { class: 'sm2' }, '@' + x.username)),
-        el('button', { class: 'sub sm', onclick: safe(async () => { await api('/api/block/' + x.username, 'DELETE'); settings(); }) }, 'ブロック解除')
-      ));
-    });
-
-    toggleBtn.onclick = () => {
-      isOpen = !isOpen;
-      listDiv.style.display = isOpen ? 'block' : 'none';
-      toggleBtn.querySelector('.block-arrow').textContent = isOpen ? '▲' : '▼';
-    };
-
-    blockContainer.append(toggleBtn, listDiv);
-  }
-
   pane.replaceChildren(phead('設定'), el('div', { class: 'page' }, el('h3', { style: 'margin-top:0' }, 'プロフィール'), el('button', { class: 'sub', onclick: () => { location.hash = '#/edit'; } }, 'プロフィールを編集する'), ' ', el('button', { class: 'sub', onclick: () => { location.hash = '#/connections'; } }, 'つながりを見る'),
     el('h3', { style: 'margin-top:30px' }, '表示'), el('div', { class: 'row2' }, el('button', { class: 'sub', onclick: () => setTheme('light') }, 'ライト'), el('button', { class: 'sub', onclick: () => setTheme('dark') }, 'ダーク'), el('button', { class: 'sub', onclick: () => setTheme('') }, '端末に合わせる')),
     el('h3', { style: 'margin-top:30px' }, '話しかけの受け付け'), el('p', { class: 'sm2' }, 'プロフィールからの話しかけを制限できます。「相手を探す」で見つかった人とは、お互いに「話してみる」を選べば話せます。'), inbox,
-    el('h3', { style: 'margin-top:30px' }, 'ブロックリスト'), el('p', { class: 'sm2' }, 'あなただけに見えます。相手には通知されません。'), blockContainer,
+    el('h3', { style: 'margin-top:30px' }, 'ブロックリスト'), el('p', { class: 'sm2' }, 'あなただけに見えます。相手には通知されません。'), bl.length ? bl.map(x => el('div', { class: 'row', style: 'padding-left:0;cursor:default' }, avatar(x), el('div', { class: 'g' }, el('div', { class: 'nm' }, x.display), el('div', { class: 'sm2' }, '@' + x.username)), el('button', { class: 'sub sm', onclick: safe(async () => { await api('/api/block/' + x.username, 'DELETE'); settings(); }) }, 'ブロック解除'))) : el('p', { class: 'sm2' }, 'ブロック中のユーザーはいません'),
     el('h3', { style: 'margin-top:30px' }, 'パスワードの変更'), cur, nw, el('button', { class: 'sub', onclick: safe(async () => { await api('/api/me/password', 'POST', { current: cur.value, next: nw.value }); cur.value = nw.value = ''; toast('パスワードを変更しました'); }) }, '変更する'),
     el('h3', { style: 'margin-top:30px' }, 'お問い合わせ'), el('button', { class: 'sub', onclick: () => openForm('contact') }, 'お問い合わせフォームを開く'),
     el('div', { class: 'row2', style: 'margin-top:30px' }, el('button', { class: 'sub', onclick: safe(async () => { await api('/api/logout', 'POST'); ME = null; location.hash = ''; landing(); }) }, 'ログアウト')),
