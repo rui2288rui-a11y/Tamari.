@@ -16,6 +16,7 @@ const app = $('#app');
 :root{--tm-accent:#8d7cf6;--tm-soft:rgba(141,124,246,.10)} body{font-family:Inter,'Noto Sans JP','Yu Gothic UI','Hiragino Kaku Gothic ProN',system-ui,sans-serif;letter-spacing:.01em} .page,.chatw,.me,.posts-section{animation:tmIn .28s ease both}.nm,h1,h2,h3{letter-spacing:-.025em}.phead{backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 88%,transparent);position:sticky;top:0;z-index:5}.profile-top-actions{margin-left:auto;display:flex;align-items:center}.online-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#48c78e;box-shadow:0 0 0 4px rgba(72,199,142,.12);margin-right:6px}.offline-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#a0a0aa;margin-right:6px}.profile-online{font-size:12px;color:var(--muted);display:flex;align-items:center;margin-top:4px}.notice-unread{animation:tmPulse 1.5s ease-in-out infinite}.trending-card{border:1px solid var(--line);border-radius:18px;padding:18px;margin:18px 0;background:linear-gradient(135deg,var(--bg),var(--soft,#f7f7fb));transition:transform .18s ease,box-shadow .18s ease}.trending-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.07)}.trending-rank{font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}.reply-count{color:var(--muted);font-size:12px}@keyframes tmIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}@keyframes tmPulse{0%,100%{box-shadow:0 0 0 0 rgba(141,124,246,.0)}50%{box-shadow:0 0 18px 3px rgba(141,124,246,.25)}}`; document.head.append(st); })();
 let ME = null, es = null, ST = null, CFG = { reportUrl: '', contactUrl: '' }, side, pane, bnav, searching = false, curMatch = null, curChat = null, onMsg = null, onDel = null, opened = false;
 // いま入っているチャット(退出・ブロック・相手の退出まで「チャット中」として覚えておく)
+let quietUntil = 0; const quiet = () => { quietUntil = Date.now() + 8000; }, endedChats = new Set(); // 自分で退出・ブロックした直後は、相手退出の知らせを出さない
 let activeChat = (() => { try { return +sessionStorage.getItem('tamari_active_chat') || null; } catch (e) { return null; } })(), wantList = false;
 const setActiveChat = id => { activeChat = id ? +id : null; try { if (id) sessionStorage.setItem('tamari_active_chat', String(+id)); else sessionStorage.removeItem('tamari_active_chat'); } catch (e) {} };
 const goReplace = h => location.replace(h); // 履歴に残さず移動する
@@ -139,22 +140,31 @@ function connect() {
   es.addEventListener('read', e=>{ const d=JSON.parse(e.data); if(d.chat!==curChat)return; document.querySelectorAll('.msg.mine .read-mark').forEach(x=>x.textContent=(localStorage.getItem('tamari_lang')||'ja')==='en'?'Read':'既読'); });
   es.addEventListener('typing', e=>{ const d=JSON.parse(e.data); if(d.chat!==curChat)return; const t=document.querySelector('.chat-typing'); if(t)t.textContent=d.typing?((localStorage.getItem('tamari_lang')||'ja')==='en'?'Typing…':'相手が入力中…'):''; });
   es.addEventListener('del', e => onDel && onDel(JSON.parse(e.data).id));
+  // 相手が退出した(または会話が終了した)ときの知らせ。見ているチャットには「相手が退出しました」を表示し、送信欄も閉じる
+  const partnerLeft = (chatId, message) => {
+    if (endedChats.has(chatId)) return;
+    endedChats.add(chatId);
+    const msg = message || '相手が退出しました';
+    toast(msg);
+    if (chatId !== curChat) return;
+    onMsg = null; onDel = null;
+    const list = document.querySelector('.msgs');
+    if (list && !document.querySelector('.chat-ended')) { list.append(el('div', { class: 'chat-ended', style: 'text-align:center;color:var(--muted);font-size:13px;margin:18px 0' }, msg)); list.scrollTop = list.scrollHeight; }
+    const comp = document.querySelector('.comp'); if (comp) comp.remove();
+  };
   es.addEventListener('chatremoved', e => {
     const d = JSON.parse(e.data);
     if (d.chat === activeChat) setActiveChat(null);
-    if (d.chat === curChat) { curChat = null; onMsg = null; onDel = null; document.body.classList.remove('inchat'); goReplace('#/chats'); }
+    if (Date.now() < quietUntil) {
+      if (d.chat === curChat) { curChat = null; onMsg = null; onDel = null; document.body.classList.remove('inchat'); goReplace('#/chats'); }
+    } else partnerLeft(d.chat);
     renderSide().catch(() => {});
   });
   es.addEventListener('chatend', e => {
     const d = JSON.parse(e.data);
     if (d.chat === activeChat) setActiveChat(null);
-    if (d.chat !== curChat) return;
-    onMsg = null; onDel = null;
-    toast(d.message || '相手が退出しました');
-    const marker = el('div',{class:'chat-ended'},d.message || '相手が退出しました');
-    const list=document.querySelector('.msgs');
-    if(list) list.append(marker);
-    const comp=document.querySelector('.comp'); if(comp) comp.remove();
+    if (Date.now() < quietUntil) return;
+    partnerLeft(d.chat, d.message);
   });
   es.addEventListener('notice', e => {
     const n = JSON.parse(e.data);
@@ -304,14 +314,14 @@ ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.m
   const w = d.with;
   const exitChat = safe(async () => {
     if (!confirm('このチャットから退出しますか？')) return;
-    try { await api('/api/chats/' + id + '/leave', 'POST'); } finally {
+    quiet(); try { await api('/api/chats/' + id + '/leave', 'POST'); } finally {
       onMsg = null; onDel = null; curChat = null; setActiveChat(null); goReplace('#/chats');
     }
   });
   const menu = el('div', { class: 'row2 chat-toolbar' },
     el('button', { class: 'txt', onclick: safe(async () => { if (d.mine) await api('/api/connect/' + w.username, 'DELETE'); else { const r = await api('/api/connect', 'POST', { username: w.username }); toast(r.mutual ? w.display + 'さんとつながりました' : 'つながりを希望しました。相手にも同じ気持ちがあると成立します'); } route(); }) }, d.mutual ? 'つながり中' : d.mine ? '希望済み' : 'つながる'),
     el('button', { class: 'txt', onclick: () => openForm('report') }, '通報'),
-    el('button', { class: 'txt', onclick: safe(async () => { if (confirm(w.display + 'さんをブロックしますか?お互いに見えなくなり、相手には通知されません。')) { await api('/api/block', 'POST', { username: w.username }); setActiveChat(null); goReplace('#/chats'); } }) }, 'ブロック'),
+    el('button', { class: 'txt', onclick: safe(async () => { if (confirm(w.display + 'さんをブロックしますか?お互いに見えなくなり、相手には通知されません。')) { quiet(); await api('/api/block', 'POST', { username: w.username }); setActiveChat(null); goReplace('#/chats'); } }) }, 'ブロック'),
   el('button', { class: 'leave-chat', onclick: exitChat }, '退出'));
   pane.replaceChildren(el('div', { class: 'chatw' }, el('div', { class: 'phead' }, el('button', { class: 'back', 'aria-label': '戻る', onclick: () => { wantList = true; location.hash = '#/chats'; } }, '←'), avatar(w),
     el('a', { class: 'g', href: '#/u/' + w.username, style: 'text-decoration:none' }, el('div', { class: 'nm' }, w.display), el('div', { class: 'sm2' }, 'プロフィールを見る')), menu),
@@ -527,7 +537,7 @@ function renderProfile(u, acts, ctx = {}) { // 保存済みのデータも、編
       u.self && d.replies && d.replies.length ? el('div', { class: 'rps' }, d.replies.map(r => el('div', { class: 'rp' }, el('a', { href: '#/u/' + r.username, class: 'nm' }, r.display), ' ', r.stamp ? el('span', { class: 'tag' }, r.stamp) : null, r.body ? el('span', {}, r.body) : null,
         ctx.talk ? el('button', { class: 'txt', style: 'margin-left:8px', onclick: () => ctx.talk(r.username) }, 'この人と話す') : null))) : null))) : null,
     links: () => { const ls = u.links.map(l => [l, okLink(l)]).filter(x => x[1]); return ls.length ? sec('links', ls.map(([l, x]) => el('a', { class: 'lk', href: x.href, target: '_blank', rel: 'noopener noreferrer nofollow ugc' }, el('span', {}, l.title || x.hostname), el('span', { class: 'sm2' }, x.hostname)))) : null; },
-    follow: () => !u.connections || (!u.connections.length && !u.self) ? null : sec('follow', u.connections.length ? (() => { const box = el('div', { style: 'display:none;margin-top:6px' }, u.connections.map(c => el('button', { type: 'button', class: 'nm', style: 'display:block;width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:10px 0;cursor:pointer', onclick: () => { location.hash = '#/u/' + encodeURIComponent(c.username); } }, '@' + c.username))); const tg = el('button', { type: 'button', class: 'sub', onclick: () => { const open = box.style.display === 'none'; box.style.display = open ? 'block' : 'none'; tg.textContent = '一覧を' + (open ? '閉じる ▲' : '見る ▼'); } }, '一覧を見る ▼'); return el('div', {}, el('p', { class: 'sm2', style: 'margin:0 0 8px' }, u.connections.length + '人とつながっています'), tg, box); })() : el('p', { class: 'sm2' }, 'まだつながりがありません。話した相手を「つながる」で追加できます。'), u.self ? el('a', { href: '#/connections', class: 'sm2' }, 'つながりの一覧 →') : null)
+    follow: () => !u.connections || (!u.connections.length && !u.self) ? null : sec('follow', u.connections.length ? (() => { const box = el('div', { style: 'display:none;margin-top:6px' }, u.connections.map(c => el('div', { class: 'row', style: 'padding-left:0;cursor:pointer', onclick: () => { location.hash = '#/u/' + encodeURIComponent(c.username); } }, avatar({ avatar: c.avatar, display: c.display || c.username }), el('div', { class: 'g' }, el('div', { class: 'nm' }, c.display || c.username), el('div', { class: 'sm2' }, '@' + c.username))))); const tg = el('button', { type: 'button', class: 'sub', onclick: () => { const open = box.style.display === 'none'; box.style.display = open ? 'block' : 'none'; tg.textContent = '一覧を' + (open ? '閉じる ▲' : '見る ▼'); } }, '一覧を見る ▼'); return el('div', {}, el('p', { class: 'sm2', style: 'margin:0 0 8px' }, u.connections.length + '人とつながっています'), tg, box); })() : el('p', { class: 'sm2' }, 'まだつながりがありません。話した相手を「つながる」で追加できます。'), u.self ? el('a', { href: '#/connections', class: 'sm2' }, 'つながりの一覧 →') : null)
   };
   const bg = el('div', { class: 'mebg' }); if (u.bg) bg.style.backgroundImage = 'url("' + u.bg + '")';
   return el('div', { class: 'me', 'data-ac': u.accent || 'gray' }, bg, el('div', { class: 'mescrim' }),
@@ -557,7 +567,7 @@ async function profile(name) {
       el('div', { class: 'quiet' },
         u.iBlock
           ? el('button', { class: 'txt', onclick: safe(async () => { await api('/api/block/' + u.username, 'DELETE'); reload(); }) }, 'ブロック解除')
-          : el('button', { class: 'txt', onclick: safe(async () => { if (confirm('ブロックしますか?')) { await api('/api/block', 'POST', { username: u.username }); location.hash = '#/'; } }) }, 'ブロック'),
+          : el('button', { class: 'txt', onclick: safe(async () => { if (confirm('ブロックしますか?')) { quiet(); await api('/api/block', 'POST', { username: u.username }); location.hash = '#/'; } }) }, 'ブロック'),
         el('button', { class: 'txt', onclick: () => openForm('report') }, '通報')
       )
     );
@@ -658,7 +668,7 @@ async function route() {
     else if (curMatch || searching) { /* 相手探しの画面はそのまま */ if (searching) searchView(); }
     else await home();
     if (!h.startsWith('#/chat/')) pane.scrollTop = 0;
-  } catch (e) { toast(e.message); if (e.status === 401) { ME = null; landing(); } else if (h.startsWith('#/chat/')) { setActiveChat(null); goReplace('#/chats'); } else if (h !== '' && h !== '#/') location.hash = '#/'; }
+  } catch (e) { toast(h.startsWith('#/chat/') && endedChats.has(+h.split('/')[2]) ? '相手が退出しました' : e.message); if (e.status === 401) { ME = null; landing(); } else if (h.startsWith('#/chat/')) { setActiveChat(null); goReplace('#/chats'); } else if (h !== '' && h !== '#/') location.hash = '#/'; }
   finally { clearTimeout(slow); applyLanguage(); }
 }
 async function boot() {
