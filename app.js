@@ -27,8 +27,7 @@ const LANG_MORE = {
 '相手から返事がありませんでした。もう一度探してみましょう':'The other person did not respond. Let’s try again.','今回は見送りになりました。もう一度探してみましょう':'This match was passed on. Let’s try again.','相手が見つかりませんでした。しばらくしてからもう一度お試しください':'No match was found. Please try again later.','さんからメッセージが届きました':' sent you a message','既読':'Read','相手が入力中…':'Typing…','相手が退出しました':'The other person left the chat','さんがチャットを開始しました':' started the chat','さんから「つながりたい」が届きました':' sent you a connection request','さんとつながりました':'You are now connected with ','さんが話しかけています':' wants to talk to you','さんがあなたの投稿に反応しました':' reacted to your post','さんがあなたの投稿に返信しました':' replied to your post','さんがあなたの返信に反応しました':' reacted to your reply','さんが日記にひとこと残しました':' left a note on your diary',
 '今日はまだ投稿がありません。':'No posts today yet.','投稿画像':'Post image','返信':'Reply','@ユーザー名 または 投稿のキーワードを検索':'Search @username or a post keyword','ユーザーや投稿を検索':'Search users or posts','ユーザー名は @、投稿はキーワードから検索できます。':'Use @ for usernames or keywords for posts.','ユーザー':'Users','該当するユーザー・投稿が見つかりませんでした。':'No matching users or posts found.','ユーザー・投稿を探す':'Find users or posts','登録ユーザーは @ユーザー名、投稿は文章の一部やキーワードから検索できます。':'Search registered users by @username, or search posts by words or phrases.','ユーザーは @、投稿はキーワードから検索できます。':'Use @ for users and keywords for posts.',
 'お知らせはありません':'No notices','新しい反応や返信があると、ここに届きます。':'New reactions and replies will appear here.','相手を探しています':'Finding someone to talk to','現在参加しているユーザーから':'From people currently available','話せる相手を探しています。':'Looking for someone you can talk to.','見つかるまで、このままお待ちください(最大3分)。':'Please wait here until someone is found (up to 3 minutes).','やめる':'Cancel','相手が見つかりました':'A match was found','「話してみる」は、相手も同じ気持ちのときにチャットが始まります。':'Chat starts when the other person also chooses “Talk”.','プロフィールをすべて見る(新しいタブ) →':'View full profile (new tab) →','話してみる':'Talk','今回はやめる':'Not this time','さんの返事を待っています':' is waiting for your response','相手も「話してみる」を選ぶと、チャットが始まります。':'Chat starts when both people choose “Talk”.','相手を探す':'Find someone','一時的な会話をここで始められます':'Start a temporary conversation here','まだチャットがありません':'No chats yet','「相手を探す」から、今話せる人を見つけてみましょう。':'Use “Find someone” to meet someone available to chat.','送られた画像':'Sent image','拡大した画像':'Enlarged image','このメッセージを削除しますか?':'Delete this message?','まだメッセージがありません。最初のひとことを送ってみましょう。':'No messages yet. Send the first message.','メッセージ(Ctrl+Enterで送信)':'Message (Ctrl+Enter to send)','メッセージ':'Message','画像を添付しています(送信で投稿)':'Image attached (send to post)','画像は2MB以下にしてください':'Images must be 2MB or smaller','画像を読み込めませんでした。別の画像でお試しください':'Could not load the image. Please try another one.','このチャットから退出しますか？':'Leave this chat?','つながりを希望しました。相手にも同じ気持ちがあると成立します':'Connection request sent. It becomes mutual when they choose the same.','つながり中':'Connected','希望済み':'Requested','つながる':'Connect','さんをブロックしますか?お互いに見えなくなり、相手には通知されません。':'Block this person? You will no longer see each other, and they will not be notified.','退出':'Leave','プロフィールを見る':'View profile','画像を添付':'Attach image','画像':'Image','送信':'Send',
-'まもなく消えます':'Disappears soon','あと約':'About ','時間で消えます':' hours remaining','わかる':'I get it','おつかれさま':'Nice work','おもしろい':'Funny','ありがとう':'Thanks','すごい':'Amazing','ひとこと(任意・60文字まで)':'Note (optional, up to 60 characters)',
-'ひとこと添える':'Add a note','この日記を書いた人にだけ届きます。そこから会話が始まるかもしれません。':'Only the diary owner will receive this. It may start a conversation.','届けました':'Sent','送る':'Send','取り消す':'Cancel','今日のこと、好きなもの、残しておきたい一言など':'Share something about today, your interests, or a thought you want to keep','画像は3MB以下にしてください':'Images must be 3MB or smaller','動画は10MB以下にしてください':'Videos must be 10MB or smaller','文章・画像・動画のいずれかを追加してください':'Add text, an image, or a video','動画（MP4・30秒以内）':'Video (MP4, up to 30 seconds)','キャンセル':'Cancel','ファイルを読み込めませんでした':'Could not load the file','さんに返信':'Reply to ','この投稿にひとこと':'Say something about this post','返信に返信':'Reply to reply','返信を入力してください':'Write a reply','返信しました':'Reply sent','返信に♡':'React to reply','まだ返信はありません。':'No replies yet.','この投稿':'This post','閉じる':'Close','件の反応':' reactions','件のいいね':' likes','反応を取り消す':'Remove reaction','♡ 反応する':'♡ React','反応':'Reaction','この投稿を削除しますか？':'Delete this post?','今日の一枚':'Today’s photo','ひとこと(送信済み・変更する)':'Note (sent · change)','この人と話す':'Talk to this person','まだつながりがありません。話した相手を「つながる」で追加できます。':'No connections yet. Add people you have talked with using “Connect”.','つながりの一覧 →':'Connections →','オンライン':'Online','オフライン':'Offline','つながりを解除しますか?':'Remove this connection?','つながりを希望しました':'Connection requested','ブロックしますか?':'Block this person?','あなたのページ':'Your page','ファイルは':'The file must be','MB以下にしてください':'MB or smaller','画像を変更しました':'Image updated','動画をアップロードしています…':'Uploading video…','通信できませんでした。もう一度お試しください':'Unable to connect. Please try again.','動画をアップロードできませんでした':'Could not upload video','動画を変更しました':'Video updated','動画は30秒以内にしてください':'Video must be 30 seconds or shorter',
+'まもなく消えます':'Disappears soon','あと約':'About ','時間で消えます':' hours remaining','わかる':'I get it','おつかれさま':'Nice work','おもしろい':'Funny','ありがとう':'Thanks','すごい':'Amazing','ひとこと(任意・60文字まで)':'Note (optional, up to 60 characters)','ひとこと添える':'Add a note','この日記を書いた人にだけ届きます。そこから会話が始まるかもしれません。':'Only the diary owner will receive this. It may start a conversation.','届けました':'Sent','送る':'Send','取り消す':'Cancel','今日のこと、好きなもの、残しておきたい一言など':'Share something about today, your interests, or a thought you want to keep','画像は3MB以下にしてください':'Images must be 3MB or smaller','動画は10MB以下にしてください':'Videos must be 10MB or smaller','文章・画像・動画のいずれかを追加してください':'Add text, an image, or a video','動画（MP4・30秒以内）':'Video (MP4, up to 30 seconds)','キャンセル':'Cancel','ファイルを読み込めませんでした':'Could not load the file','さんに返信':'Reply to ','この投稿にひとこと':'Say something about this post','返信に返信':'Reply to reply','返信を入力してください':'Write a reply','返信しました':'Reply sent','返信に♡':'React to reply','まだ返信はありません。':'No replies yet.','この投稿':'This post','閉じる':'Close','件の反応':' reactions','件のいいね':' likes','反応を取り消す':'Remove reaction','♡ 反応する':'♡ React','反応':'Reaction','この投稿を削除しますか？':'Delete this post?','今日の一枚':'Today’s photo','ひとこと(送信済み・変更する)':'Note (sent · change)','この人と話す':'Talk to this person','まだつながりがありません。話した相手を「つながる」で追加できます。':'No connections yet. Add people you have talked with using “Connect”.','つながりの一覧 →':'Connections →','オンライン':'Online','オフライン':'Offline','つながりを解除しますか?':'Remove this connection?','つながりを希望しました':'Connection requested','ブロックしますか?':'Block this person?','あなたのページ':'Your page','ファイルは':'The file must be','MB以下にしてください':'MB or smaller','画像を変更しました':'Image updated','動画をアップロードしています…':'Uploading video…','通信できませんでした。もう一度お試しください':'Unable to connect. Please try again.','動画をアップロードできませんでした':'Could not upload video','動画を変更しました':'Video updated','動画は30秒以内にしてください':'Video must be 30 seconds or shorter',
 'グレー':'Gray','青':'Blue','紫':'Purple','緑':'Green','オレンジ':'Orange','赤':'Red','名前(例:ブログ)':'Name (e.g. Blog)','このリンクを削除':'Remove this link','+ リンクを追加':'+ Add link','リンクは6つまでです':'Up to 6 links','を表示':'Show','表示':'Visible','上へ':'Up','下へ':'Down','一言(任意)':'Note (optional)','今日はこんなことがあった…':'Something that happened today…','変更は右(スマホでは下)のプレビューにすぐ反映されます。「保存して公開」を押すと、他の人にも見えるようになります。画像・動画・日記は選んだ時点で反映されます。':'Changes appear immediately in the preview on the right (below on mobile). Save & publish to make them visible to others. Images, videos and diaries update when selected.','アイコンを変更':'Change icon','背景を変更':'Change background','アイコンは1MB、背景は2MBまで。png / jpg / gif / webp が使えます。':'Icon up to 1MB; background up to 2MB. png / jpg / gif / webp supported.','基本':'Basics','表示名':'Display name','例:今日はゆっくり。':'Example: Taking it easy today.','好きなこと(スペースで区切る)':'Interests (separate with spaces)','映画 音楽 PC':'Movies Music PC','リンク(自分のサイトなど)':'Links (your website, etc.)','ホームの今日の投稿':'Today’s posts on Home','自分の投稿を「今日の投稿」に表示する':'Show my posts in “Today’s posts”','オフにすると、プロフィールのTamari Postには残りますが、ホームの今日の投稿一覧には表示されません。':'When off, posts remain on your Tamari Post but will not appear in Home’s Today section.','カラー':'Color','表示する項目と順番':'Visible sections and order','チェックを外すと、他の人には見えなくなります。ドラッグか ↑↓ で並び替えできます。':'Uncheck a section to hide it from others. Drag or use ↑↓ to reorder.','動画(MP4・30秒まで・10MBまで)':'Video (MP4, up to 30 seconds, 10MB)','動画を選ぶ':'Choose video','きょうの一枚(その日だけ表示。日付が変わると消えます)':'Today’s photo (shown for today only)','今日の一枚を更新しました':'Today’s photo updated','写真を選ぶ':'Choose photo','今日の日記(24時間で消えます。いつでも削除できます)':'Today’s diary (expires in 24 hours; you can delete it anytime)','日記を追加':'Add diary','プレビュー(保存前の見た目)':'Preview (before saving)','お互いに「また話したい」と思っている人です。人数は誰にも表示されません。':'People who both want to talk again. The count is not shown to anyone.','まだいません。話した相手のページで「つながる」を押してみましょう。':'None yet. Try “Connect” on someone you have talked with.','あなたが希望している人':'People you requested to connect with','相手には通知されていません。相手も「つながる」を押すと成立します。':'They have not been notified. It becomes mutual when they also choose “Connect”.','いません':'None','話しかけの受け付け':'Who can message you','だれでも話しかけられる':'Anyone','つながりのある人だけ':'Connections only','話しかけを受け付けない':'No one','現在のパスワード':'Current password','新しいパスワード(8文字以上)':'New password (8+ characters)','パスワードを入力して退会':'Enter your password to delete your account','つながりを見る':'View connections','プロフィールからの話しかけを制限できます。「相手を探す」で見つかった人とは、お互いに「話してみる」を選べば話せます。':'Control who can message you from your profile. People found through “Find someone” can chat when both choose “Talk”.','ブロックリスト':'Block list','あなただけに見えます。相手には通知されません。':'Only you can see this. The other person is not notified.','ブロック中のユーザーはいません':'No blocked users','パスワードの変更':'Change password','パスワードを変更しました':'Password changed','変更する':'Change','ログアウト':'Log out','退会':'Delete account','プロフィール・画像・メッセージ・つながりなど、あなたに関するデータをすべて削除します。元に戻せません。':'This permanently deletes your profile, images, messages, connections and other data.','本当に退会しますか?すべてのデータが削除され、元に戻せません。':'Delete your account? All data will be permanently deleted.','退会しました。ご利用ありがとうございました':'Your account was deleted. Thank you for using Tamari.','退会する':'Delete account','保存しました':'Saved','保存して公開':'Save & publish','やめる':'Cancel','プロフィールを編集':'Edit profile','プロフィールを編集する':'Edit profile'
 };
 Object.assign(LANG, LANG_MORE);
@@ -522,13 +521,14 @@ function renderProfile(u, acts, ctx = {}) { // 保存済みのデータも、編
       u.self && d.replies && d.replies.length ? el('div', { class: 'rps' }, d.replies.map(r => el('div', { class: 'rp' }, el('a', { href: '#/u/' + r.username, class: 'nm' }, r.display), ' ', r.stamp ? el('span', { class: 'tag' }, r.stamp) : null, r.body ? el('span', {}, r.body) : null,
         ctx.talk ? el('button', { class: 'txt', style: 'margin-left:8px', onclick: () => ctx.talk(r.username) }, 'この人と話す') : null))) : null))) : null,
     links: () => { const ls = u.links.map(l => [l, okLink(l)]).filter(x => x[1]); return ls.length ? sec('links', ls.map(([l, x]) => el('a', { class: 'lk', href: x.href, target: '_blank', rel: 'noopener noreferrer nofollow ugc' }, el('span', {}, l.title || x.hostname), el('span', { class: 'sm2' }, x.hostname)))) : null; },
-    // 修正1：相互繋がり部分でURLではなく「ユーザー名(@〜)」の綺麗なリスト形式にする
-follow: () => {
+    
+    // 【修正①】相互繋がり一覧のURLを非表示にし、表示名とユーザー名(@〜)を綺麗に並べる形に修正
+    follow: () => {
       if (!u.connections || (!u.connections.length && !u.self)) return null;
-      const content = [];
+      const listNodes = [];
       if (u.connections.length) {
         u.connections.forEach(c => {
-          content.push(
+          listNodes.push(
             el('a', { class: 'lk', href: '#/u/' + c.username, style: 'display:flex;align-items:center;justify-content:space-between;text-decoration:none' },
               el('span', { style: 'font-weight:600' }, c.display),
               el('span', { class: 'sm2' }, '@' + c.username)
@@ -536,12 +536,12 @@ follow: () => {
           );
         });
       } else {
-        content.push(el('p', { class: 'sm2' }, 'まだつながりがありません。話した相手のページで「つながる」で追加できます。'));
+        listNodes.push(el('p', { class: 'sm2' }, 'まだつながりがありません。話した相手のページで「つながる」で追加できます。'));
       }
       if (u.self) {
-        content.push(el('a', { href: '#/connections', class: 'sm2' }, 'つながりの一覧 →'));
+        listNodes.push(el('a', { href: '#/connections', class: 'sm2', style: 'display:block;margin-top:8px' }, 'つながりの一覧 →'));
       }
-      return sec('follow', content);
+      return sec('follow', listNodes);
     }
   };
   const bg = el('div', { class: 'mebg' }); if (u.bg) bg.style.backgroundImage = 'url("' + u.bg + '")';
@@ -640,24 +640,22 @@ async function settings() {
   inbox.value = ME.inbox || 'all'; inbox.onchange = safe(async () => { await api('/api/settings', 'PUT', { inbox: inbox.value }); ME.inbox = inbox.value; toast('保存しました'); });
   const cur = el('input', { type: 'password', autocomplete: 'current-password', placeholder: '現在のパスワード' }), nw = el('input', { type: 'password', autocomplete: 'new-password', placeholder: '新しいパスワード(8文字以上)' }), dp = el('input', { type: 'password', autocomplete: 'current-password', placeholder: 'パスワードを入力して退会' });
   
-  // 修正2：ブロックリストを折りたたみ（アコーディオン）式にするためのコンテナ作成
+  // 【修正②】ブロックリストをタップして展開できるアコーディオン（折りたたみ）式に修正
   const blockContainer = el('div');
-  const renderBlockList = () => {
-    if (!bl.length) {
-      blockContainer.replaceChildren(el('p', { class: 'sm2' }, 'ブロック中のユーザーはいません'));
-      return;
-    }
+  if (!bl.length) {
+    blockContainer.append(el('p', { class: 'sm2' }, 'ブロック中のユーザーはいません'));
+  } else {
     let isOpen = false;
-    const toggleBtn = el('button', { class: 'sub', style: 'width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 16px' }, 
-      el('span', {}, 'ブロック中のユーザー (' + bl.length + '人)'), 
-      el('span', { class: 'block-toggle-arrow' }, '▼')
+    const toggleBtn = el('button', { class: 'sub', style: 'width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;cursor:pointer' },
+      el('span', {}, 'ブロック中のユーザー (' + bl.length + '人)'),
+      el('span', { class: 'block-arrow' }, '▼')
     );
     const listDiv = el('div', { style: 'display:none;margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--bg)' });
     
     bl.forEach(x => {
-      listDiv.append(el('div', { class: 'row', style: 'padding:8px 0;border-bottom:1px solid var(--line);align-items:center;cursor:default' }, 
-        avatar(x), 
-        el('div', { class: 'g', style: 'flex:1' }, el('div', { class: 'nm' }, x.display), el('div', { class: 'sm2' }, '@' + x.username)), 
+      listDiv.append(el('div', { class: 'row', style: 'padding:8px 0;border-bottom:1px solid var(--line);align-items:center;cursor:default' },
+        avatar(x),
+        el('div', { class: 'g', style: 'flex:1' }, el('div', { class: 'nm' }, x.display), el('div', { class: 'sm2' }, '@' + x.username)),
         el('button', { class: 'sub sm', onclick: safe(async () => { await api('/api/block/' + x.username, 'DELETE'); settings(); }) }, 'ブロック解除')
       ));
     });
@@ -665,11 +663,11 @@ async function settings() {
     toggleBtn.onclick = () => {
       isOpen = !isOpen;
       listDiv.style.display = isOpen ? 'block' : 'none';
-      toggleBtn.querySelector('.block-toggle-arrow').textContent = isOpen ? '▲' : '▼';
+      toggleBtn.querySelector('.block-arrow').textContent = isOpen ? '▲' : '▼';
     };
 
-    blockContainer.replaceChildren(toggleBtn, listDiv);
-  };
+    blockContainer.append(toggleBtn, listDiv);
+  }
 
   pane.replaceChildren(phead('設定'), el('div', { class: 'page' }, el('h3', { style: 'margin-top:0' }, 'プロフィール'), el('button', { class: 'sub', onclick: () => { location.hash = '#/edit'; } }, 'プロフィールを編集する'), ' ', el('button', { class: 'sub', onclick: () => { location.hash = '#/connections'; } }, 'つながりを見る'),
     el('h3', { style: 'margin-top:30px' }, '表示'), el('div', { class: 'row2' }, el('button', { class: 'sub', onclick: () => setTheme('light') }, 'ライト'), el('button', { class: 'sub', onclick: () => setTheme('dark') }, 'ダーク'), el('button', { class: 'sub', onclick: () => setTheme('') }, '端末に合わせる')),
@@ -680,8 +678,6 @@ async function settings() {
     el('div', { class: 'row2', style: 'margin-top:30px' }, el('button', { class: 'sub', onclick: safe(async () => { await api('/api/logout', 'POST'); ME = null; location.hash = ''; landing(); }) }, 'ログアウト')),
     el('h3', { style: 'margin-top:36px' }, '退会'), el('p', { class: 'sm2' }, 'プロフィール・画像・メッセージ・つながりなど、あなたに関するデータをすべて削除します。元に戻せません。'), dp,
     el('button', { class: 'sub', onclick: safe(async () => { if (!confirm('本当に退会しますか?すべてのデータが削除され、元に戻せません。')) return; await api('/api/me/delete', 'POST', { password: dp.value }); ME = null; location.hash = ''; toast('退会しました。ご利用ありがとうございました'); landing(); }) }, '退会する'), formLinks()));
-  
-  renderBlockList();
 }
 
 async function route() {
