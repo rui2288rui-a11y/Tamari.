@@ -512,6 +512,29 @@ async function renderPosts(username,self){
 function renderProfile(u, acts, ctx = {}) { // 保存済みのデータも、編集中のプレビューも、同じ関数で描画します
   const sec = (id, ...k) => el('section', { class: 'blk' }, el('h3', { class: 'lb' }, LABEL[id]), k);
   const txt = (id, v, cls) => v ? sec(id, el('p', { class: cls || 'tx' }, id === 'likes' || id === 'hobbies' || id === 'interests' ? slash(v) : v)) : null;
+  
+  // 【修正①】相互繋がり一覧のURL表示をユーザー名・表示名に置き換える処理（関数として安全に定義）
+  const getFollowNode = () => {
+    if (!u.connections || (!u.connections.length && !u.self)) return null;
+    const listNodes = [];
+    if (u.connections.length) {
+      u.connections.forEach(c => {
+        listNodes.push(
+          el('a', { class: 'lk', href: '#/u/' + c.username, style: 'display:flex;align-items:center;justify-content:space-between;text-decoration:none' },
+            el('span', { style: 'font-weight:600' }, c.display),
+            el('span', { class: 'sm2' }, '@' + c.username)
+          )
+        );
+      });
+    } else {
+      listNodes.push(el('p', { class: 'sm2' }, 'まだつながりがありません。話した相手のページで「つながる」で追加できます。'));
+    }
+    if (u.self) {
+      listNodes.push(el('a', { href: '#/connections', class: 'sm2', style: 'display:block;margin-top:8px' }, 'つながりの一覧 →'));
+    }
+    return sec('follow', listNodes);
+  };
+
   const parts = {
     status: () => u.statusLine ? el('p', { class: 'now' }, u.statusLine) : null, bio: () => txt('bio', u.bio), likes: () => txt('likes', u.likes, 'tx sl'), hobbies: () => txt('hobbies', u.hobbies, 'tx sl'), interests: () => txt('interests', u.interests, 'tx sl'), quote: () => txt('quote', u.quote, 'tx sl'),
     shot: () => u.shot ? sec('shot', el('figure', { class: 'shot' }, el('img', { src: u.shot.image, alt: '今日の一枚' }), u.shot.caption ? el('figcaption', {}, u.shot.caption) : null)) : null,
@@ -521,28 +544,7 @@ function renderProfile(u, acts, ctx = {}) { // 保存済みのデータも、編
       u.self && d.replies && d.replies.length ? el('div', { class: 'rps' }, d.replies.map(r => el('div', { class: 'rp' }, el('a', { href: '#/u/' + r.username, class: 'nm' }, r.display), ' ', r.stamp ? el('span', { class: 'tag' }, r.stamp) : null, r.body ? el('span', {}, r.body) : null,
         ctx.talk ? el('button', { class: 'txt', style: 'margin-left:8px', onclick: () => ctx.talk(r.username) }, 'この人と話す') : null))) : null))) : null,
     links: () => { const ls = u.links.map(l => [l, okLink(l)]).filter(x => x[1]); return ls.length ? sec('links', ls.map(([l, x]) => el('a', { class: 'lk', href: x.href, target: '_blank', rel: 'noopener noreferrer nofollow ugc' }, el('span', {}, l.title || x.hostname), el('span', { class: 'sm2' }, x.hostname)))) : null; },
-    
-    // 【修正①】相互繋がり一覧のURLを非表示にし、表示名とユーザー名(@〜)を綺麗に並べる形に修正
-    follow: () => {
-      if (!u.connections || (!u.connections.length && !u.self)) return null;
-      const listNodes = [];
-      if (u.connections.length) {
-        u.connections.forEach(c => {
-          listNodes.push(
-            el('a', { class: 'lk', href: '#/u/' + c.username, style: 'display:flex;align-items:center;justify-content:space-between;text-decoration:none' },
-              el('span', { style: 'font-weight:600' }, c.display),
-              el('span', { class: 'sm2' }, '@' + c.username)
-            )
-          );
-        });
-      } else {
-        listNodes.push(el('p', { class: 'sm2' }, 'まだつながりがありません。話した相手のページで「つながる」で追加できます。'));
-      }
-      if (u.self) {
-        listNodes.push(el('a', { href: '#/connections', class: 'sm2', style: 'display:block;margin-top:8px' }, 'つながりの一覧 →'));
-      }
-      return sec('follow', listNodes);
-    }
+    follow: getFollowNode
   };
   const bg = el('div', { class: 'mebg' }); if (u.bg) bg.style.backgroundImage = 'url("' + u.bg + '")';
   return el('div', { class: 'me', 'data-ac': u.accent || 'gray' }, bg, el('div', { class: 'mescrim' }),
