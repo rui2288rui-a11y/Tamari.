@@ -15,6 +15,10 @@ const app = $('#app');
 (function injectTamariPolish(){ if(document.getElementById('tamari-polish')) return; const st=document.createElement('style'); st.id='tamari-polish'; st.textContent=`
 :root{--tm-accent:#8d7cf6;--tm-soft:rgba(141,124,246,.10)} body{font-family:Inter,'Noto Sans JP','Yu Gothic UI','Hiragino Kaku Gothic ProN',system-ui,sans-serif;letter-spacing:.01em} .page,.chatw,.me,.posts-section{animation:tmIn .28s ease both}.nm,h1,h2,h3{letter-spacing:-.025em}.phead{backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 88%,transparent);position:sticky;top:0;z-index:5}.profile-top-actions{margin-left:auto;display:flex;align-items:center}.online-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#48c78e;box-shadow:0 0 0 4px rgba(72,199,142,.12);margin-right:6px}.offline-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#a0a0aa;margin-right:6px}.profile-online{font-size:12px;color:var(--muted);display:flex;align-items:center;margin-top:4px}.notice-unread{animation:tmPulse 1.5s ease-in-out infinite}.trending-card{border:1px solid var(--line);border-radius:18px;padding:18px;margin:18px 0;background:linear-gradient(135deg,var(--bg),var(--soft,#f7f7fb));transition:transform .18s ease,box-shadow .18s ease}.trending-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.07)}.trending-rank{font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}.reply-count{color:var(--muted);font-size:12px}@keyframes tmIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}@keyframes tmPulse{0%,100%{box-shadow:0 0 0 0 rgba(141,124,246,.0)}50%{box-shadow:0 0 18px 3px rgba(141,124,246,.25)}}`; document.head.append(st); })();
 let ME = null, es = null, ST = null, CFG = { reportUrl: '', contactUrl: '' }, side, pane, bnav, searching = false, curMatch = null, curChat = null, onMsg = null, onDel = null, opened = false;
+// いま入っているチャット(退出・ブロック・相手の退出まで「チャット中」として覚えておく)
+let activeChat = (() => { try { return +sessionStorage.getItem('tamari_active_chat') || null; } catch (e) { return null; } })(), wantList = false;
+const setActiveChat = id => { activeChat = id ? +id : null; try { if (id) sessionStorage.setItem('tamari_active_chat', String(+id)); else sessionStorage.removeItem('tamari_active_chat'); } catch (e) {} };
+const goReplace = h => location.replace(h); // 履歴に残さず移動する
 const LANG = {
   'ホーム':'Home','チャット':'Chat','お知らせ':'Notices','プロフィール':'Profile','設定':'Settings','ユーザーを探す':'Find users','検索':'Search','今日の投稿':'Today on Tamari','反応の多い順':'Most reacted','今日の投稿がありません。':'No posts today.','まだ投稿がありません。':'No posts yet.','まだ投稿はありません。':'No posts yet.','自己紹介':'About me','今の一言':'Current note','じこしょうかい(実名・連絡先は書かないでください)':'About me (do not include your real name or contact details)','いまの一言':'Current note','お問い合わせ':'Contact','お問い合わせフォームを開く':'Open contact form','言語':'Language','日本語':'Japanese','English':'English','プロフィールを編集':'Edit profile','プロフィールを編集する':'Edit profile','保存して公開':'Save & publish','保存しました':'Saved','話しかける':'Message','話しかける':'Message','つながり':'Connections','ブロック':'Block','ブロック解除':'Unblock','通報':'Report','返信':'Reply','返信する':'Reply','反応・返信を見る':'View reactions & replies','反応する':'React','反応済み':'Reacted','削除':'Delete','投稿する':'Post','新しい投稿':'New post','投稿しました':'Posted','投稿':'Post','設定':'Settings','ライト':'Light','ダーク':'Dark','端末に合わせる':'System','プロフィールを作って「相手を探す」を押すだけ。メールも電話番号も要りません。':'Create a profile and find someone to talk to. No email or phone number required.','現在 ':'Now ','人がオンライン ・ Tamariで交わされたメッセージ ':' online · Messages exchanged on Tamari: ','件':'','まだいません。':'None yet.','つながる(また話したい)':'Connect','つながり中(解除する)':'Connected (remove)','つながり希望を取り消す':'Cancel request','登録しているユーザーを @username で検索できます。':'Search registered users by @username.','該当するユーザーが見つかりませんでした。':'No matching users found.','話したい相手を探す機能は「チャット」から利用できます。':'Find someone to talk to from Chat.','相手の投稿':'Their posts','この人の投稿':'Their posts','あなたの投稿':'Your posts','今日の日記':'Today’s diary','きょうの一枚':'Today’s photo','動画':'Video','リンク':'Links','好きなもの':'Favorites','趣味':'Hobbies','興味':'Interests','好きな言葉':'Favorite words','プロフィールを作って':'Create a profile','読み込んでいます…':'Loading…'
 };
@@ -128,7 +132,7 @@ function connect() {
     searching = false;
     foundView(d);
   });
-  es.addEventListener('matchstart', e => { const d = JSON.parse(e.data); if (curMatch) { curMatch = null; location.hash = '#/chat/' + d.chat; } });
+  es.addEventListener('matchstart', e => { const d = JSON.parse(e.data); if (curMatch) { curMatch = null; goReplace('#/chat/' + d.chat); } });
   es.addEventListener('matchend', e => { if (!curMatch) return; curMatch = null; toast(JSON.parse(e.data).reason === 'timeout' ? '相手から返事がありませんでした。もう一度探してみましょう' : '今回は見送りになりました。もう一度探してみましょう'); home(); });
   es.addEventListener('searchend', () => { if (searching) { searching = false; toast('相手が見つかりませんでした。しばらくしてからもう一度お試しください'); home(); } });
   es.addEventListener('msg', e => { const m = JSON.parse(e.data); if (onMsg && m.chat === curChat) onMsg(m); else if (m.username !== ME.username) { toast(m.display + 'さんからメッセージが届きました'); renderSide().catch(() => {}); } });
@@ -137,11 +141,13 @@ function connect() {
   es.addEventListener('del', e => onDel && onDel(JSON.parse(e.data).id));
   es.addEventListener('chatremoved', e => {
     const d = JSON.parse(e.data);
-    if (d.chat === curChat) { curChat = null; onMsg = null; onDel = null; document.body.classList.remove('inchat'); location.hash = '#/chats'; }
+    if (d.chat === activeChat) setActiveChat(null);
+    if (d.chat === curChat) { curChat = null; onMsg = null; onDel = null; document.body.classList.remove('inchat'); goReplace('#/chats'); }
     renderSide().catch(() => {});
   });
   es.addEventListener('chatend', e => {
     const d = JSON.parse(e.data);
+    if (d.chat === activeChat) setActiveChat(null);
     if (d.chat !== curChat) return;
     onMsg = null; onDel = null;
     toast(d.message || '相手が退出しました');
@@ -156,7 +162,7 @@ function connect() {
     if (n.kind === 'talk') {
       if (n.chat === curChat) return;
       toast(n.display + 'さんがチャットを開始しました');
-      if (!searching && !curMatch) location.hash = '#/chat/' + n.chat;
+      if (!searching && !curMatch) goReplace('#/chat/' + n.chat);
       return;
     }
     toast(noticeText(n));
@@ -272,7 +278,7 @@ async function chatList() {
 }
 async function chat(id) {
   curChat = +id; let typingTimer=null; let typingShown=null;
-  await api('/api/chats/'+id+'/read','POST').catch(()=>{}); document.body.classList.add('inchat'); const d = await api('/api/chats/' + id); let image = null;
+  await api('/api/chats/'+id+'/read','POST').catch(()=>{}); document.body.classList.add('inchat'); const d = await api('/api/chats/' + id); setActiveChat(id); let image = null;
   const list = el('div', { class: 'msgs' }), pv = el('div', { class: 'pv' });
   const add = m => {
     const mine = m.username === ME.username, meta = el('div', { class: 'meta' }, hm(m.created)), box = el('div', { class: 'msg' + (mine ? ' mine' : ''), 'data-id': m.id }, meta, m.body ? el('div', { class: 'bub' }, m.body) : null);
@@ -299,15 +305,15 @@ ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.m
   const exitChat = safe(async () => {
     if (!confirm('このチャットから退出しますか？')) return;
     try { await api('/api/chats/' + id + '/leave', 'POST'); } finally {
-      onMsg = null; onDel = null; curChat = null; location.hash = '#/chats';
+      onMsg = null; onDel = null; curChat = null; setActiveChat(null); goReplace('#/chats');
     }
   });
   const menu = el('div', { class: 'row2 chat-toolbar' },
     el('button', { class: 'txt', onclick: safe(async () => { if (d.mine) await api('/api/connect/' + w.username, 'DELETE'); else { const r = await api('/api/connect', 'POST', { username: w.username }); toast(r.mutual ? w.display + 'さんとつながりました' : 'つながりを希望しました。相手にも同じ気持ちがあると成立します'); } route(); }) }, d.mutual ? 'つながり中' : d.mine ? '希望済み' : 'つながる'),
     el('button', { class: 'txt', onclick: () => openForm('report') }, '通報'),
-    el('button', { class: 'txt', onclick: safe(async () => { if (confirm(w.display + 'さんをブロックしますか?お互いに見えなくなり、相手には通知されません。')) { await api('/api/block', 'POST', { username: w.username }); location.hash = '#/chats'; } }) }, 'ブロック'),
+    el('button', { class: 'txt', onclick: safe(async () => { if (confirm(w.display + 'さんをブロックしますか?お互いに見えなくなり、相手には通知されません。')) { await api('/api/block', 'POST', { username: w.username }); setActiveChat(null); goReplace('#/chats'); } }) }, 'ブロック'),
   el('button', { class: 'leave-chat', onclick: exitChat }, '退出'));
-  pane.replaceChildren(el('div', { class: 'chatw' }, el('div', { class: 'phead' }, el('button', { class: 'back', 'aria-label': '戻る', onclick: () => { location.hash = '#/chats'; } }, '←'), avatar(w),
+  pane.replaceChildren(el('div', { class: 'chatw' }, el('div', { class: 'phead' }, el('button', { class: 'back', 'aria-label': '戻る', onclick: () => { wantList = true; location.hash = '#/chats'; } }, '←'), avatar(w),
     el('a', { class: 'g', href: '#/u/' + w.username, style: 'text-decoration:none' }, el('div', { class: 'nm' }, w.display), el('div', { class: 'sm2' }, 'プロフィールを見る')), menu),
     typing, list, pv, el('div', { class: 'comp' }, el('button', { class: 'sub', onclick: () => file.click(), 'aria-label': '画像を添付' }, '画像'), file, ta, el('button', { onclick: sendIt }, '送信'))));
   list.scrollTop = list.scrollHeight; onMsg = add; onDel = id => { const x = list.querySelector('[data-id="' + id + '"]'); if (x) x.remove(); };
@@ -624,15 +630,18 @@ async function settings() {
     el('h3', { style: 'margin-top:30px' }, 'ブロックリスト'), el('p', { class: 'sm2' }, 'あなただけに見えます。相手には通知されません。'), bl.length ? (() => { const box = el('div', { style: 'display:none;margin-top:8px' }, bl.map(x => el('div', { class: 'row', style: 'padding-left:0;cursor:default' }, avatar(x), el('div', { class: 'g' }, el('div', { class: 'nm' }, x.display), el('div', { class: 'sm2' }, '@' + x.username)), el('button', { class: 'sub sm', onclick: safe(async () => { await api('/api/block/' + x.username, 'DELETE'); settings(); }) }, 'ブロック解除')))); const tg = el('button', { class: 'sub', onclick: () => { const open = box.style.display === 'none'; box.style.display = open ? 'block' : 'none'; tg.textContent = 'ブロックリスト(' + bl.length + '人)' + (open ? ' ▲' : ' ▼'); } }, 'ブロックリスト(' + bl.length + '人) ▼'); return el('div', {}, tg, box); })() : el('p', { class: 'sm2' }, 'ブロック中のユーザーはいません'),
     el('h3', { style: 'margin-top:30px' }, 'パスワードの変更'), cur, nw, el('button', { class: 'sub', onclick: safe(async () => { await api('/api/me/password', 'POST', { current: cur.value, next: nw.value }); cur.value = nw.value = ''; toast('パスワードを変更しました'); }) }, '変更する'),
     el('h3', { style: 'margin-top:30px' }, 'お問い合わせ'), el('button', { class: 'sub', onclick: () => openForm('contact') }, 'お問い合わせフォームを開く'),
-    el('div', { class: 'row2', style: 'margin-top:30px' }, el('button', { class: 'sub', onclick: safe(async () => { await api('/api/logout', 'POST'); ME = null; location.hash = ''; landing(); }) }, 'ログアウト')),
+    el('div', { class: 'row2', style: 'margin-top:30px' }, el('button', { class: 'sub', onclick: safe(async () => { await api('/api/logout', 'POST'); setActiveChat(null); ME = null; location.hash = ''; landing(); }) }, 'ログアウト')),
     el('h3', { style: 'margin-top:36px' }, '退会'), el('p', { class: 'sm2' }, 'プロフィール・画像・メッセージ・つながりなど、あなたに関するデータをすべて削除します。元に戻せません。'), dp,
-    el('button', { class: 'sub', onclick: safe(async () => { if (!confirm('本当に退会しますか?すべてのデータが削除され、元に戻せません。')) return; await api('/api/me/delete', 'POST', { password: dp.value }); ME = null; location.hash = ''; toast('退会しました。ご利用ありがとうございました'); landing(); }) }, '退会する'), formLinks()));
+    el('button', { class: 'sub', onclick: safe(async () => { if (!confirm('本当に退会しますか?すべてのデータが削除され、元に戻せません。')) return; await api('/api/me/delete', 'POST', { password: dp.value }); setActiveChat(null); ME = null; location.hash = ''; toast('退会しました。ご利用ありがとうございました'); landing(); }) }, '退会する'), formLinks()));
 }
 
 async function route() {
   if (!ME) return; const h = location.hash; onMsg = onDel = null;
   if (curMatch && h !== '' && h !== '#/') { const m = curMatch; curMatch = null; api('/api/match/answer', 'POST', { match: m, accept: false }).catch(() => {}); }
   if (searching && !['','#/','#/chats'].includes(h)) { searching = false; api('/api/match/cancel', 'POST').catch(() => {}); }
+  // チャット中(退出・ブロック・相手の退出まで)に「チャット」ボタンを押したら、一覧ではなくそのチャットに戻す
+  const wl = wantList; wantList = false;
+  if (h === '#/chats' && activeChat && !searching && !wl) { goReplace('#/chat/' + activeChat); return; }
   document.body.classList.remove('inchat');
   const slow = setTimeout(() => pane.replaceChildren(loadingEl()), 300); // 読み込みが遅いときだけ表示
   try {
@@ -649,7 +658,7 @@ async function route() {
     else if (curMatch || searching) { /* 相手探しの画面はそのまま */ if (searching) searchView(); }
     else await home();
     if (!h.startsWith('#/chat/')) pane.scrollTop = 0;
-  } catch (e) { toast(e.message); if (e.status === 401) { ME = null; landing(); } else if (h !== '' && h !== '#/') location.hash = '#/'; }
+  } catch (e) { toast(e.message); if (e.status === 401) { ME = null; landing(); } else if (h.startsWith('#/chat/')) { setActiveChat(null); goReplace('#/chats'); } else if (h !== '' && h !== '#/') location.hash = '#/'; }
   finally { clearTimeout(slow); applyLanguage(); }
 }
 async function boot() {
